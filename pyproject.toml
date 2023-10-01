@@ -7,6 +7,9 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
+pydantic = "^2.4.2"
+pydantic-settings = "^2.0.3"
+bencode-py = "^4.0.0"
 
 
 [tool.poetry.group.dev.dependencies]
