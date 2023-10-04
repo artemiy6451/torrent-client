@@ -1,9 +1,9 @@
 """Файл для основной работы с торрент файлом."""
 
 from pathlib import Path
-from app.models import TorrentData
 
 from app.parser import Parser
+from app.parser.models import TorrentData
 
 
 class Torrent:
@@ -23,4 +23,5 @@ class Torrent:
             raw_file_data: bytes = file.read()
             parser = Parser(raw_file_data)
             torrent_data = parser.parse_torrent_data()
+            print(torrent_data.model_dump())
             return torrent_data

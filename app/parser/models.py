@@ -1,17 +1,19 @@
 """Файл с описанием моделей приложения."""
 
 from pathlib import Path
+
 from pydantic import BaseModel
+
 
 class File(BaseModel):
     """Модель описания файла для скачивания внутри торрент файла."""
 
-    length: str
+    length: int
     path: Path | None = None
 
 
-class TorrentData(BaseModel):
-    """Модель торрент файла."""
+class TorrentFileData(BaseModel):
+    """Модель данных торрент файла."""
 
     name: str
     announce: str
@@ -20,4 +22,4 @@ class TorrentData(BaseModel):
     piece_length: int
     info_hash: str
     files: list[File]
-
+    pieces: bytes
