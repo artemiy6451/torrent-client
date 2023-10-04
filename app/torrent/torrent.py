@@ -3,7 +3,8 @@
 from pathlib import Path
 
 from app.parser import Parser
-from app.parser.models import TorrentData
+from app.parser.models import TorrentFileData
+from app.tracker import Tracker
 
 
 class Torrent:
@@ -15,13 +16,13 @@ class Torrent:
 
     def download(self) -> None:
         """Метод для скачивания данных торрент файла."""
-        pass
+        peers = Tracker(self.parse_torrent_file()).get_peers()
+        print(peers)
 
-    def parse_torrent_file(self) -> TorrentData:
+    def parse_torrent_file(self) -> TorrentFileData:
         """Метод для вызова парсинга торрент файла."""
         with open(self.torrent_file_path, "rb") as file:
             raw_file_data: bytes = file.read()
             parser = Parser(raw_file_data)
             torrent_data = parser.parse_torrent_data()
-            print(torrent_data.model_dump())
             return torrent_data

@@ -1,5 +1,6 @@
 """Файл для парсинга данных из торрент файла."""
 
+import random
 from hashlib import sha1
 from pathlib import Path
 
@@ -25,6 +26,7 @@ class Parser:
             total_length=self.__parse_total_length(),
             piece_length=self.__parse_peice_length(),
             info_hash=self.__generate_info_hash(),
+            peer_id="-BX0001-" + "".join([str(random.randint(0, 9)) for _ in range(12)]),
             files=self.__parse_files(),
             pieces=self.__parse_peices(),
         )

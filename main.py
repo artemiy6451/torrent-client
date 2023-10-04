@@ -7,7 +7,6 @@ from config import settings
 def main():
     """Start app."""
     torrent = Torrent(settings.torrent_file_path)
-    torrent.parse_torrent_file()
     torrent.download()
 
 

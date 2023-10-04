@@ -21,5 +21,6 @@ class TorrentFileData(BaseModel):
     total_length: int
     piece_length: int
     info_hash: str
+    peer_id: str
     files: list[File]
     pieces: bytes
