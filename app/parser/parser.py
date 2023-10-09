@@ -5,6 +5,7 @@ from hashlib import sha1
 from pathlib import Path
 
 import bencodepy
+from loguru import logger
 
 from app.parser.models import File, TorrentFileData
 
@@ -19,6 +20,7 @@ class Parser:
 
     def parse_torrent_data(self) -> TorrentFileData:
         """Метод для парсинга данных с торрент файла."""
+        logger.debug("Starting torrent file parse")
         return TorrentFileData(
             name=self.__parse_torrent_name(),
             announce=self.__parse_announce(),
@@ -33,14 +35,17 @@ class Parser:
 
     def __parse_torrent_name(self) -> str:
         """Метод для парсинга имени скачиваемого торента."""
+        logger.debug("Parsing torrent file name")
         return self.decoded_torrent_data[b"info"][b"name"].decode("utf-8")
 
     def __parse_announce(self) -> str:
         """Метод для парсинга главного треккера."""
+        logger.debug("Parsing torrent file announce")
         return self.decoded_torrent_data[b"announce"].decode("utf-8")
 
     def __parse_announce_list(self) -> list[str]:
         """Метод для парсинга всех треккеров из торрент файла."""
+        logger.debug("Parsing torrent file announce list")
         if b"announce-list" in self.decoded_torrent_data:
             announce_list = []
             for announce in self.decoded_torrent_data[b"announce-list"]:
@@ -51,6 +56,7 @@ class Parser:
 
     def __parse_total_length(self) -> int:
         """Метод для парсинга общего размера скачиваемыем данных."""
+        logger.debug("Parsing torrent file total download length")
         if b"files" in self.decoded_torrent_data[b"info"]:
             total_length = 0
             for file in self.decoded_torrent_data[b"info"][b"files"]:
@@ -61,13 +67,16 @@ class Parser:
 
     def __parse_peice_length(self) -> int:
         """Метод для парсинга размера одного кусочка данных."""
+        logger.debug("Parsing torrent file piece length")
         return self.decoded_torrent_data[b"info"][b"piece length"]
 
     def __generate_info_hash(self) -> str:
         """Метод для генерации хэша торрент фала."""
+        logger.debug("Generate info hash")
         return sha1(bencodepy.encode(self.decoded_torrent_data[b"info"])).hexdigest()
 
     def __parse_files(self) -> list[File]:
+        logger.debug("Parse files to download in torrent files")
         files = []
         if b"files" in self.decoded_torrent_data[b"info"]:
             for file in self.decoded_torrent_data[b"info"][b"files"]:
@@ -87,7 +96,9 @@ class Parser:
             ]
 
     def __parse_file_path(self, file: list[bytes]) -> Path:
+        logger.debug("Generate file path for download file")
         return Path("").joinpath(*[dir.decode("utf-8") for dir in file])
 
     def __parse_peices(self):
+        logger.debug("Parse peices from torrent file")
         return self.decoded_torrent_data[b"info"][b"pieces"]

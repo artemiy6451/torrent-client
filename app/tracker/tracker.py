@@ -1,8 +1,10 @@
 """Файл для работы с треккером."""
 
+from loguru import logger
 from app.parser.models import TorrentFileData
-from app.tracker.models import Peer
+from app.tracker.models import Payload, Peer
 from config import settings
+import requests
 
 
 class Tracker:
@@ -19,18 +21,52 @@ class Tracker:
 
     def get_peers(self) -> list[Peer]:
         """Метод для получения списка пиров с торрент трекера."""
-        print(self.torrent_file_data.announce)
-
-        if self.torrent_file_data.announce.startswith("udp"):
-            payload = [
-                self.torrent_file_data.info_hash,
-                self.torrent_file_data.peer_id,
-                self.port,
-                self.uploaded,
-                self.downloaded,
-                self.torrent_file_data.total_length,
-                self.compact,
-                self.event,
-            ]
-            print(payload)
+        logger.debug("Starting get peers from torrent tracker")
+        for tracker in self.torrent_file_data.announce_list:
+            if tracker.startswith("http"):
+                peers = self.__get_peers_from_http(tracker)
+                if peers:
+                    return peers
+            elif tracker.startswith("udp"):
+                peers = self.__get_peers_from_udp(tracker)
+                if peers:
+                    return peers
         return []
+
+    def __get_peers_from_http(self, tracker_url: str) -> list[Peer]:
+        logger.debug(f"Tring to get peer from tracker: {tracker_url}")
+        try:
+            data = self.__generate_payload(
+                downloaded=0,
+                event='started'
+            ).model_dump()
+            response = requests.get(
+                tracker_url,
+                data=data,
+                timeout=3,
+            )
+            print(response.status_code)
+        except (
+                requests.exceptions.ConnectionError,
+                requests.exceptions.ReadTimeout,
+                ):
+            logger.debug(f"Can not connect to tracker: {tracker_url}")
+        return []
+
+    def __get_peers_from_udp(self, tracker_url: str) -> list[Peer]:
+        logger.debug(f"Tring to get peer from tracker: {tracker_url}")
+        return []
+
+    def __generate_payload(self, downloaded: int, event: str) -> Payload:
+        logger.debug("Generate payload")
+        return Payload(
+            info_hash=self.torrent_file_data.info_hash,
+            peer_id=self.torrent_file_data.peer_id,
+            port=self.port,
+            uploaded=self.uploaded,
+            downloaded=downloaded,
+            length=self.torrent_file_data.total_length,
+            compact=self.compact,
+            event=event,
+        )
+

@@ -11,7 +11,6 @@ parser.add_argument("-p", help="Torrent path to file")
 args = parser.parse_args()
 load_dotenv()
 
-
 class Settings(BaseSettings):
     """Class with all app settings."""
 
